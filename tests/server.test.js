@@ -19,6 +19,7 @@ describe("POST /signup", () => {
         const result = await supertest(app).post("/signup").send(body);
         expect(result.status).toEqual(201);
     });
+
     it("returns status 400 for schema email", async ()=>{
         const body = {
             name: "Test verify",
@@ -28,6 +29,28 @@ describe("POST /signup", () => {
         const result = await supertest(app).post("/signup").send(body);
         expect(result.status).toEqual(400);
     });
+
+    it("returns status 400 for schema name", async ()=>{
+        const body = {
+            name: "",
+            email: "test.verify@gmail",
+            password: "123456"
+        }
+        const result = await supertest(app).post("/signup").send(body);
+        expect(result.status).toEqual(400);
+    });
+
+    it("returns status 400 for schema password", async ()=>{
+        const body = {
+            name: "Test verify",
+            email: "test.verify@gmail",
+            password: "123"
+        }
+        const result = await supertest(app).post("/signup").send(body);
+        expect(result.status).toEqual(400);
+    });
+
+
 
     it("returns status 409 for valid conflic email", async ()=>{
         const body = {
@@ -43,6 +66,38 @@ describe("POST /signup", () => {
 });
 
 describe("POST /signin", () => {
+    it("returns status 400 for schema email", async ()=>{
+        const bodyCreate = {
+            name: "Test verify",
+            email: "test.verify@gmail.com",
+            password: "123456"
+        }
+        const body = {
+            email: "asdasdasd",
+            password: "123456"
+        }
+        const resultCreate = await supertest(app).post("/signup").send(bodyCreate);
+        expect(resultCreate.status).toEqual(201);
+        const result = await supertest(app).post("/signin").send(body);
+        expect(result.status).toEqual(400);
+    });
+
+    it("returns status 400 for schema password", async ()=>{
+        const bodyCreate = {
+            name: "Test verify",
+            email: "test.verify@gmail.com",
+            password: "123456"
+        }
+        const body = {
+            email: "test.verify@gmail.com",
+            password: "123"
+        }
+        const resultCreate = await supertest(app).post("/signup").send(bodyCreate);
+        expect(resultCreate.status).toEqual(201);
+        const result = await supertest(app).post("/signin").send(body);
+        expect(result.status).toEqual(400);
+    });
+
     it("returns status 200 for sucess on login", async ()=>{
         const bodyCreate = {
             name: "Test verify",

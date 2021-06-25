@@ -10,14 +10,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
 app.post('/signup', async (req,res)=>{
     const { name, email, password } = req.body;
     const hash = bcrypt.hashSync(password, 10);
     const schema = Joi.object({
-        email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] }}).required(),
-    });
-    const value = schema.validate({email:email});
+        name: Joi.string().min(1).required(),
+        email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }).required(),
+        password: Joi.string().alphanum().pattern(/[a-zA-Z0-9]/).min(4).required()
+    })
+    const value = schema.validate({name:name, email:email, password:password,});
     if(value.error) return res.sendStatus(400);
     const checkEmail = await connection.query(`
         SELECT * FROM users
@@ -35,6 +36,12 @@ app.post('/signup', async (req,res)=>{
 
 app.post('/signin', async (req,res)=>{
     const { email, password } = req.body;
+    const schema = Joi.object({
+        email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }).required(),
+        password: Joi.string().alphanum().pattern(/[a-zA-Z0-9]/).min(4).required()
+    })
+    const value = schema.validate({email:email, password:password,});
+    if(value.error) return res.sendStatus(400);    
     try{
         const result = await connection.query(`SELECT * FROM users WHERE email = $1`,[email]);
         if(!result.rows[0]) return res.sendStatus(406);
@@ -69,6 +76,11 @@ app.post('/revenue', async (req,res)=>{
     let { name, value, description } = req.body;
     const authorization = req.header('Authorization');
     const token = authorization?.replace("Bearer ", "");
+    const schema = Joi.object({
+        value: Joi.number().min(1).required()
+    });
+    const valueValidated = schema.validate({value:value});
+    if(valueValidated.error) return res.sendStatus(400);
     if(!token) return res.sendStatus(401);
     const date = format(new Date(), 'd/MM');
     if(value.includes(".")){
@@ -92,6 +104,11 @@ app.post('/expense', async (req,res)=>{
     let { name, value, description } = req.body;
     const authorization = req.header('Authorization');
     const token = authorization?.replace("Bearer ", "");
+    const schema = Joi.object({
+        value: Joi.number().min(1).required()
+    });
+    const valueValidated = schema.validate({value:value});
+    if(valueValidated.error) return res.sendStatus(400);
     if(!token) return res.sendStatus(401);
     const date = format(new Date(), 'd/MM');
     if(value.includes(".")){
