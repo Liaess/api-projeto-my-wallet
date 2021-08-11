@@ -4,10 +4,17 @@ import connection from '../src/database.js';
 import database from '../src/database.js';
 
 beforeEach(async () =>{
-    await connection.query(`DELETE FROM users`);
-    await connection.query(`DELETE FROM sessions`);
-    await connection.query(`DELETE FROM register`);
+    await connection.query(`TRUNCATE TABLE users RESTART IDENTITY`);
+    await connection.query(`TRUNCATE TABLE sessions RESTART IDENTITY`);
+    await connection.query(`TRUNCATE TABLE register RESTART IDENTITY`);
 })
+
+afterAll(async ()=>{
+    await connection.query(`TRUNCATE TABLE users RESTART IDENTITY`);
+    await connection.query(`TRUNCATE TABLE sessions RESTART IDENTITY`);
+    await connection.query(`TRUNCATE TABLE register RESTART IDENTITY`);
+    database.end();
+});
 
 describe("POST /signup", () => {
     it("returns status 201 for schema email", async ()=>{
@@ -49,8 +56,6 @@ describe("POST /signup", () => {
         const result = await supertest(app).post("/signup").send(body);
         expect(result.status).toEqual(400);
     });
-
-
 
     it("returns status 409 for valid conflic email", async ()=>{
         const body = {
@@ -141,11 +146,4 @@ describe("POST /signin", () => {
         const result = await supertest(app).post("/signin").send(bodyLogin);
         expect(result.status).toEqual(401);
     });
-});
-
-afterAll(async ()=>{
-    await connection.query(`DELETE FROM users`);
-    await connection.query(`DELETE FROM sessions`);
-    await connection.query(`DELETE FROM register`);
-    database.end();
 });

@@ -22,7 +22,8 @@
     "supertest": "^6.1.3"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "npx nodemon src/server.js",
+    "test": "npx jest -i"
   },
   "keywords": [],
   "author": "",
