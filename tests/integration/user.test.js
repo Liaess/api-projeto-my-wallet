@@ -1,19 +1,16 @@
-import app from '../src/app.js';
+import "../../src/setup.js";
+import app from '../../src/app.js';
 import supertest from 'supertest';
-import connection from '../src/database.js';
-import database from '../src/database.js';
+import { clearDatabase, closeConnection } from "../utils/database.js";
 
-beforeEach(async () =>{
-    await connection.query(`TRUNCATE TABLE users RESTART IDENTITY`);
-    await connection.query(`TRUNCATE TABLE sessions RESTART IDENTITY`);
-    await connection.query(`TRUNCATE TABLE register RESTART IDENTITY`);
-})
+
+beforeEach(async ()=>{
+    await clearDatabase();
+});
 
 afterAll(async ()=>{
-    await connection.query(`TRUNCATE TABLE users RESTART IDENTITY`);
-    await connection.query(`TRUNCATE TABLE sessions RESTART IDENTITY`);
-    await connection.query(`TRUNCATE TABLE register RESTART IDENTITY`);
-    database.end();
+    await clearDatabase();
+    await closeConnection();
 });
 
 describe("POST /signup", () => {
